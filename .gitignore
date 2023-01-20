@@ -1,0 +1,15 @@
+*.rbc
+*.swp
+/_yardoc/
+/.bundle/
+/.byebug_history
+/.yardoc
+/.ruby-version
+/coverage/
+/doc/
+/dump.rdb
+/Gemfile.lock
+/pkg/
+/rack-idempotency_key-*.gem
+/spec/reports/
+/tmp/

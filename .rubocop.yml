@@ -1,0 +1,51 @@
+---
+require:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.5
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Layout/EmptyLineBetweenDefs:
+  Enabled: true
+  AllowAdjacentOneLineDefs: true
+
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: indented_internal_methods
+
+Layout/LineLength:
+  Enabled: true
+  Max: 100
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/ClassLength:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/MethodLength:
+  Enabled: true
+  CountAsOne: ['array', 'hash']
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+...

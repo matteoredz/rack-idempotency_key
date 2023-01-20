@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Setup gem credentials
+mkdir -p ~/.gem
+touch ~/.gem/credentials
+chmod 0600 ~/.gem/credentials
+
+cat << EOF > ~/.gem/credentials
+---
+:rubygems_api_key: ${RUBYGEMS_API_KEY}
+EOF
+
+# Build and Push
+gem build *.gemspec
+gem push *.gem
