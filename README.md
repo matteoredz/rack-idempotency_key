@@ -49,8 +49,9 @@ module MyApp
       Rack::IdempotencyKey,
       store: Rack::IdempotencyKey::MemoryStore.new,
       routes: [
-        { path: "/posts",   method: "POST" },
-        { path: "/posts/*", method: "PATCH" }
+        { path: "/posts", method: "POST" },
+        { path: "/posts/*", method: "PATCH" },
+        { path: "/posts/*/comments", method: "POST" }
       ]
     )
   end
@@ -120,8 +121,9 @@ Each route entry must be compliant with what follows:
 
 ```ruby
 routes: [
-  { path: "/posts",   method: "POST" },
-  { path: "/posts/*", method: "PATCH" }
+  { path: "/posts", method: "POST" },
+  { path: "/posts/*", method: "PATCH" },
+  { path: "/posts/*/comments", method: "POST" }
 ]
 ```
 
