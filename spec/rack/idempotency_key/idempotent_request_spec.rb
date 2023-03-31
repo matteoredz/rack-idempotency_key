@@ -15,13 +15,17 @@ RSpec.describe Rack::IdempotencyKey::IdempotentRequest do
   let(:routes)          { [] }
   let(:idempotency_key) { "123456789" }
 
+  shared_context "with idempotency key in place" do
+    before { env["HTTP_IDEMPOTENCY_KEY"] = idempotency_key }
+  end
+
   describe "#allowed?" do
     context "with idempotency key over an allowed method and a matching route" do
+      include_context "with idempotency key in place"
+
       let(:env_opts) { { method: "POST" } }
       let(:env_uri)  { "/posts" }
       let(:routes)   { [{ path: "/posts", method: "POST" }] }
-
-      before { env["HTTP_IDEMPOTENCY_KEY"] = idempotency_key }
 
       it { is_expected.to be_allowed }
     end
@@ -35,6 +39,8 @@ RSpec.describe Rack::IdempotencyKey::IdempotentRequest do
     end
 
     context "with a not allowed request method" do
+      include_context "with idempotency key in place"
+
       let(:env_uri) { "/posts" }
       let(:routes)  { [{ path: "/posts", method: "GET" }] }
 
@@ -42,9 +48,11 @@ RSpec.describe Rack::IdempotencyKey::IdempotentRequest do
     end
 
     context "without a matching route" do
+      include_context "with idempotency key in place"
+
       let(:env_opts) { { method: "POST" } }
       let(:env_uri)  { "/posts/1/authors" }
-      let(:routes)   { [{ path: "/posts", method: "POST" }] }
+      let(:routes)   { [{ path: "/posts/*", method: "POST" }] }
 
       it { is_expected.not_to be_allowed }
     end
@@ -100,7 +108,7 @@ RSpec.describe Rack::IdempotencyKey::IdempotentRequest do
 
   describe "#idempotency_key?" do
     context "with the idempotency key" do
-      before { env["HTTP_IDEMPOTENCY_KEY"] = idempotency_key }
+      include_context "with idempotency key in place"
 
       it { is_expected.to be_idempotency_key }
     end
@@ -112,7 +120,7 @@ RSpec.describe Rack::IdempotencyKey::IdempotentRequest do
 
   describe "#idempotency_key" do
     context "with the idempotency key" do
-      before { env["HTTP_IDEMPOTENCY_KEY"] = idempotency_key }
+      include_context "with idempotency key in place"
 
       it { expect(idempotent_request.idempotency_key).to eq(idempotency_key) }
     end

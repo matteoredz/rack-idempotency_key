@@ -52,7 +52,8 @@ module Rack
         attr_reader :request, :routes
 
         def matching_route?(route_path)
-          same_segments? segments(route_path)
+          route_segments = segments route_path
+          path_segments.size == route_segments.size && same_segments?(route_segments)
         end
 
         def matching_method?(route_method)
