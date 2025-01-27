@@ -1,8 +1,10 @@
 *.rbc
 *.swp
+**/.DS_Store
 /_yardoc/
 /.bundle/
 /.byebug_history
+/.DS_Store
 /.yardoc
 /.ruby-version
 /.tool-versions
