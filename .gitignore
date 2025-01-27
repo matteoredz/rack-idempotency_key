@@ -5,6 +5,7 @@
 /.byebug_history
 /.yardoc
 /.ruby-version
+/.tool-versions
 /coverage/
 /doc/
 /dump.rdb
