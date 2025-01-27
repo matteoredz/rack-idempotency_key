@@ -16,12 +16,12 @@ jobs:
           release-type: ruby
           token: ${{secrets.GITHUB_TOKEN}}
           version-file: "lib/rack/idempotency_key/version.rb"
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: ${{steps.release.outputs.release_created}}
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-          ruby-version: 2.7.0
+          ruby-version: 2.5
         if: ${{steps.release.outputs.release_created}}
       - run: bundle install
         if: ${{steps.release.outputs.release_created}}
