@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
+require "rack/idempotency_key/store"
+
 module Rack
   class IdempotencyKey
-    class RedisStore
+    class RedisStore < Store
       KEY_NAMESPACE = "idempotency_key"
 
       def initialize(store, expires_in: 86_400)
-        @store      = store
-        @expires_in = expires_in
+        super(store, expires_in: expires_in)
       end
 
       def get(key)

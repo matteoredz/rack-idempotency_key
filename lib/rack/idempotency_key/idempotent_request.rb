@@ -3,9 +3,6 @@
 module Rack
   class IdempotencyKey
     class IdempotentRequest
-      RUNNING  = "running"
-      FINISHED = "finished"
-
       # @param request [Rack::Request]
       # @param routes  [Array]
       # @param store   [Store]
@@ -23,11 +20,13 @@ module Rack
         idempotency_key? && allowed_method? && any_matching_route?
       end
 
-      def running?
-        store.get(status_cache_key) == RUNNING
-      end
-
-      def with_lock
+      # TODO
+      #
+      # 1. Lock immediately the request using the store!
+      #   1.1. Raise ConflictError if the execution should already be locked
+      # 2. Yield the block
+      # 3. Release the lock w/o affecting other locks
+      def with_lock!
         yield
       end
 
@@ -37,14 +36,9 @@ module Rack
         end
       end
 
-      def run
-        store.set(status_cache_key, RUNNING)
-      end
-
       def cache(response)
         status, = response
         store.set(cache_key, response) if status != 400
-        store.set(status_cache_key, FINISHED)
       end
 
       # Checks if the HTTP request method is non-idempotent by design.
@@ -78,10 +72,6 @@ module Rack
 
       def cache_key
         idempotency_key
-      end
-
-      def status_cache_key
-        "#{idempotency_key}_status"
       end
 
       private

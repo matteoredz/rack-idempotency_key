@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
+require "rack/idempotency_key/store"
+
 module Rack
   class IdempotencyKey
-    class MemoryStore
-      def initialize(expires_in: 86_400)
-        @store      = {}
-        @expires_in = expires_in
+    class MemoryStore < Store
+      def initialize(store = {}, expires_in: 86_400)
+        super(store, expires_in: expires_in)
       end
 
       def get(key)
