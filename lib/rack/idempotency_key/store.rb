@@ -3,7 +3,9 @@
 module Rack
   class IdempotencyKey
     class Store
-      def initialize(store, expires_in: 86_400)
+      DEFAULT_EXPIRATION = 86_400 # 24 hours in seconds
+
+      def initialize(store, expires_in: DEFAULT_EXPIRATION)
         @store      = store
         @expires_in = expires_in
       end
