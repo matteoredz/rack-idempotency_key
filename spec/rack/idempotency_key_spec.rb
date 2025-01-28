@@ -66,6 +66,7 @@ RSpec.describe Rack::IdempotencyKey do
   context "with Idempotency-Key header and a non-idempotent method" do
     context "with a previously cached response" do
       before do
+        allow(store).to receive(:get).with("123456789_status").and_return("finished")
         allow(store).to receive(:get).with("123456789").and_return(next_app.call)
         post "/", {}, { "HTTP_IDEMPOTENCY_KEY" => "123456789" }
       end
@@ -94,7 +95,7 @@ RSpec.describe Rack::IdempotencyKey do
       it "doesn't cache the response" do
         allow(store).to receive(:set).with(any_args)
         post "/", {}, { "HTTP_IDEMPOTENCY_KEY" => "123456789" }
-        expect(store).not_to have_received(:set)
+        expect(store).not_to have_received(:set).with("123456789", next_app)
       end
     end
   end

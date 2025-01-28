@@ -20,18 +20,17 @@ module Rack
     end
 
     def call(env)
-      request = IdempotentRequest.new(Rack::Request.new(env), routes)
+      request = IdempotentRequest.new(Rack::Request.new(env), routes, store)
       return app.call(env) unless request.allowed?
 
-      cached_response = store.get(request.idempotency_key)
+      request.with_lock do
+        return [409, { "Content-Type" => "text/plain" }, ["Conflict"]] if request.running?
 
-      if cached_response
-        cached_response[1]["Idempotent-Replayed"] = true
-        return cached_response
-      end
+        cached_response = request.cached_response
+        return cached_response unless cached_response.nil?
 
-      app.call(env).tap do |response|
-        store.set(request.idempotency_key, response) if response[0] != 400
+        request.run
+        app.call(env).tap { |response| request.cache(response) }
       end
     end
 

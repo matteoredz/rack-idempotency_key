@@ -3,14 +3,19 @@
 module Rack
   class IdempotencyKey
     class IdempotentRequest
-      # @param [Rack::Request] request
-      # @param [Array]         routes
-      def initialize(request, routes = [])
+      RUNNING  = "running"
+      FINISHED = "finished"
+
+      # @param request [Rack::Request]
+      # @param routes  [Array]
+      # @param store   [Store]
+      def initialize(request, routes, store)
         @request = request
         @routes  = routes
+        @store   = store
       end
 
-      # Check if the `Idempotency-Key` header is present, if the HTTP request method is
+      # Checks if the `Idempotency-Key` header is present, if the HTTP request method is
       # allowed and if there is any matching route whitelisted in the `routes` array.
       #
       # @return [Boolean]
@@ -18,14 +23,38 @@ module Rack
         idempotency_key? && allowed_method? && any_matching_route?
       end
 
-      # Check if the HTTP request method is non-idempotent by design.
+      def running?
+        store.get(status_cache_key) == RUNNING
+      end
+
+      def with_lock
+        yield
+      end
+
+      def cached_response
+        store.get(cache_key).tap do |response|
+          response[1]["Idempotent-Replayed"] = true unless response.nil?
+        end
+      end
+
+      def run
+        store.set(status_cache_key, RUNNING)
+      end
+
+      def cache(response)
+        status, = response
+        store.set(cache_key, response) if status != 400
+        store.set(status_cache_key, FINISHED)
+      end
+
+      # Checks if the HTTP request method is non-idempotent by design.
       #
       # @return [Boolean]
       def allowed_method?
         %w[POST PATCH CONNECT].include? request.request_method
       end
 
-      # Check if there is any matching route from the `routes` input array against
+      # Checks if there is any matching route from the `routes` input array against
       # the currently requested path.
       #
       # @return [Boolean]
@@ -33,7 +62,7 @@ module Rack
         routes.any? { |route| matching_route?(route[:path]) && matching_method?(route[:method]) }
       end
 
-      # Check if the given request has the Idempotency-Key header
+      # Checks if the given request has the Idempotency-Key header
       #
       # @return [Boolean]
       def idempotency_key?
@@ -47,9 +76,17 @@ module Rack
         request.get_header "HTTP_IDEMPOTENCY_KEY"
       end
 
+      def cache_key
+        idempotency_key
+      end
+
+      def status_cache_key
+        "#{idempotency_key}_status"
+      end
+
       private
 
-        attr_reader :request, :routes
+        attr_reader :request, :routes, :store
 
         def matching_route?(route_path)
           route_segments = segments route_path
