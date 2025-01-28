@@ -7,26 +7,33 @@ module Rack
     class MemoryStore < Store
       def initialize(store = {}, expires_in: 86_400)
         super(store, expires_in: expires_in)
+        @mutex = Mutex.new
       end
 
       def get(key)
-        value = store[key]
-        return if value.nil?
+        mutex.synchronize do
+          value = store[key]
+          return if value.nil?
 
-        if expired?(value[:added_at])
-          store.delete(key)
-          return
+          if expired?(value[:added_at])
+            store.delete(key)
+            return
+          end
+
+          value[:value]
         end
-
-        value[:value]
       end
 
       def set(key, value)
-        store[key] ||= { value: value, added_at: Time.now.utc }
-        get(key)
+        mutex.synchronize do
+          store[key] ||= { value: value, added_at: Time.now.utc }
+          store[key][:value]
+        end
       end
 
       private
+
+        attr_reader :mutex
 
         def expired?(added_at)
           Time.now.utc - added_at > expires_in
