@@ -23,8 +23,6 @@ module Rack
 
       private
 
-        attr_reader :store, :expires_in
-
         def namespaced_key(key)
           "#{KEY_NAMESPACE}:#{key.split.join}"
         end

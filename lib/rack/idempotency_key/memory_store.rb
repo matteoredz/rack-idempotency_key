@@ -28,8 +28,6 @@ module Rack
 
       private
 
-        attr_reader :store, :expires_in
-
         def expired?(added_at)
           Time.now.utc - added_at > expires_in
         end

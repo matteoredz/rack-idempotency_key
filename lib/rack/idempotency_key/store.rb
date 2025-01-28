@@ -7,6 +7,18 @@ module Rack
         @store      = store
         @expires_in = expires_in
       end
+
+      def get(key)
+        raise NotImplementedError, "#{self.class} must implement #get"
+      end
+
+      def set(key, value)
+        raise NotImplementedError, "#{self.class} must implement #set"
+      end
+
+      protected
+
+        attr_reader :store, :expires_in
     end
   end
 end
