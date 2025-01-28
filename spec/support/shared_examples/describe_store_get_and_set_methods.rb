@@ -30,7 +30,9 @@ RSpec.shared_examples "describe store get and set methods" do
 
   describe "#set" do
     context "with a new key-value pair" do
-      it { expect(store.set(key, value)).to eq(value) }
+      it "sets the new value" do
+        expect(store.set(key, value)).to eq(value)
+      end
     end
 
     context "with an already existing key" do
@@ -38,7 +40,14 @@ RSpec.shared_examples "describe store get and set methods" do
 
       before { store.set(key, value) }
 
-      it { expect(store.set(key, new_value)).to eq(value) }
+      it "does not override the existing value" do
+        expect(store.set(key, new_value)).to eq(value)
+      end
+
+      it "returns the already set value" do
+        store.set(key, new_value)
+        expect(store.get(key)).to eq(value)
+      end
     end
   end
 end

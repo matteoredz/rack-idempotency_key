@@ -3,10 +3,10 @@
 require "spec_helper"
 require "rack/test"
 
-RSpec.describe Rack::IdempotencyKey::IdempotentRequest do
+RSpec.describe Rack::IdempotencyKey::Request do
   include Rack::Test::Methods
 
-  subject(:idempotent_request) { described_class.new(rack_request, routes) }
+  subject(:request) { described_class.new(rack_request, routes, store) }
 
   let(:rack_request)    { Rack::Request.new(env) }
   let(:env)             { Rack::MockRequest.env_for(env_uri, env_opts) }
@@ -14,6 +14,7 @@ RSpec.describe Rack::IdempotencyKey::IdempotentRequest do
   let(:env_opts)        { {} }
   let(:routes)          { [] }
   let(:idempotency_key) { "123456789" }
+  let(:store)           { Rack::IdempotencyKey::MemoryStore.new }
 
   shared_context "with idempotency key in place" do
     before { env["HTTP_IDEMPOTENCY_KEY"] = idempotency_key }
@@ -122,11 +123,11 @@ RSpec.describe Rack::IdempotencyKey::IdempotentRequest do
     context "with the idempotency key" do
       include_context "with idempotency key in place"
 
-      it { expect(idempotent_request.idempotency_key).to eq(idempotency_key) }
+      it { expect(request.idempotency_key).to eq(idempotency_key) }
     end
 
     context "without the idempotency key" do
-      it { expect(idempotent_request.idempotency_key).to be_nil }
+      it { expect(request.idempotency_key).to be_nil }
     end
   end
 end
