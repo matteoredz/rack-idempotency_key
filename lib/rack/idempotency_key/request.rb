@@ -4,20 +4,17 @@ module Rack
   class IdempotencyKey
     class Request
       # @param request [Rack::Request]
-      # @param routes  [Array]
       # @param store   [Store]
-      def initialize(request, routes, store)
+      def initialize(request, store)
         @request = request
-        @routes  = routes
         @store   = store
       end
 
-      # Checks if the `Idempotency-Key` header is present, if the HTTP request method is
-      # allowed and if there is any matching route whitelisted in the `routes` array.
+      # Checks if the `Idempotency-Key` header is present, if the HTTP request method is allowed.
       #
       # @return [Boolean]
       def allowed?
-        idempotency_key? && allowed_method? && any_matching_route?
+        idempotency_key? && allowed_method?
       end
 
       # TODO
@@ -48,14 +45,6 @@ module Rack
         %w[POST PATCH CONNECT].include? request.request_method
       end
 
-      # Checks if there is any matching route from the `routes` input array against
-      # the currently requested path.
-      #
-      # @return [Boolean]
-      def any_matching_route?
-        routes.any? { |route| matching_route?(route[:path]) && matching_method?(route[:method]) }
-      end
-
       # Checks if the given request has the Idempotency-Key header
       #
       # @return [Boolean]
@@ -76,33 +65,7 @@ module Rack
 
       private
 
-        attr_reader :request, :routes, :store
-
-        def matching_route?(route_path)
-          route_segments = segments route_path
-          path_segments.size == route_segments.size && same_segments?(route_segments)
-        end
-
-        def matching_method?(route_method)
-          request.request_method.casecmp(route_method).zero?
-        end
-
-        def path_segments
-          @path_segments ||= segments(request.path_info)
-        end
-
-        def segments(path)
-          path.split("/").reject(&:empty?)
-        end
-
-        def same_segments?(route_segments)
-          path_segments.each_with_index do |path_segment, index|
-            route_segment = Regexp.new route_segments[index].gsub("*", '\w+'), Regexp::IGNORECASE
-            return false unless path_segment.match?(route_segment)
-          end
-
-          true
-        end
+        attr_reader :request, :store
     end
   end
 end
