@@ -8,7 +8,7 @@ require "rack/idempotency_key/memory_store"
 require "rack/idempotency_key/redis_store"
 
 # Collaborators
-require "rack/idempotency_key/idempotent_request"
+require "rack/idempotency_key/request"
 
 module Rack
   class IdempotencyKey
@@ -19,17 +19,19 @@ module Rack
     end
 
     def call(env)
-      request = IdempotentRequest.new(Rack::Request.new(env), routes, store)
+      request = Request.new(Rack::Request.new(env), routes, store)
       return app.call(env) unless request.allowed?
 
       request.with_lock! do
-        cached_response = request.cached_response
+        cached_response = request.cached_response!
         return cached_response unless cached_response.nil?
 
-        app.call(env).tap { |response| request.cache(response) }
+        app.call(env).tap { |response| request.cache!(response) }
       end
-    rescue IdempotentRequest::ConflictError
+    rescue Request::ConflictError
       [409, { "Content-Type" => "text/plain" }, ["Conflict"]]
+    rescue Store::Error => e
+      [503, { "Content-Type" => "text/plain" }, [e.message]]
     end
 
     private

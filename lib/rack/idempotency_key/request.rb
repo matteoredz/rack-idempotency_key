@@ -2,7 +2,7 @@
 
 module Rack
   class IdempotencyKey
-    class IdempotentRequest
+    class Request
       # @param request [Rack::Request]
       # @param routes  [Array]
       # @param store   [Store]
@@ -30,13 +30,13 @@ module Rack
         yield
       end
 
-      def cached_response
+      def cached_response!
         store.get(cache_key).tap do |response|
           response[1]["Idempotent-Replayed"] = true unless response.nil?
         end
       end
 
-      def cache(response)
+      def cache!(response)
         status, = response
         store.set(cache_key, response) if status != 400
       end

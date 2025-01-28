@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "redis"
+
 require "rack/idempotency_key/store"
 
 module Rack
@@ -14,11 +16,15 @@ module Rack
       def get(key)
         value = store.get(namespaced_key(key))
         JSON.parse(value) unless value.nil?
+      rescue Redis::BaseError => e
+        raise Rack::IdempotencyKey::Store::Error, "#{self.class}: #{e.message}"
       end
 
       def set(key, value)
         store.set(namespaced_key(key), value, nx: true, ex: expires_in)
         get(key)
+      rescue Redis::BaseError => e
+        raise Rack::IdempotencyKey::Store::Error, "#{self.class}: #{e.message}"
       end
 
       private
