@@ -12,7 +12,7 @@ RSpec.describe Rack::IdempotencyKey::RedisStore do
   include_examples "describe store get and set methods"
 
   describe "a generic Redis error" do
-    context "when the underlying redis store fails the getter" do
+    context "when the underlying redis store raises Redis::BaseError on get" do
       before { allow(redis_mock).to receive(:get).and_raise(Redis::BaseError) }
 
       it "raises a store error" do

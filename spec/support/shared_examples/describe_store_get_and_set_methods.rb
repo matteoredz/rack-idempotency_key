@@ -43,6 +43,11 @@ RSpec.shared_examples "describe store get and set methods" do
       it "does not override the existing value" do
         expect(store.set(key, new_value)).to eq(value)
       end
+
+      it "returns the already set value" do
+        store.set(key, new_value)
+        expect(store.get(key)).to eq(value)
+      end
     end
   end
 end

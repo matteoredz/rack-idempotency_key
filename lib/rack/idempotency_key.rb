@@ -22,12 +22,7 @@ module Rack
       request = Request.new(Rack::Request.new(env), routes, store)
       return app.call(env) unless request.allowed?
 
-      request.with_lock! do
-        cached_response = request.cached_response!
-        return cached_response unless cached_response.nil?
-
-        app.call(env).tap { |response| request.cache!(response) }
-      end
+      handle_request!(request, env)
     rescue Request::ConflictError
       [409, { "Content-Type" => "text/plain" }, ["Conflict"]]
     rescue Store::Error => e
@@ -37,5 +32,14 @@ module Rack
     private
 
       attr_reader :app, :store, :routes
+
+      def handle_request!(request, env)
+        request.with_lock! do
+          cached_response = request.cached_response!
+          return cached_response unless cached_response.nil?
+
+          app.call(env).tap { |response| request.cache!(response) }
+        end
+      end
   end
 end
