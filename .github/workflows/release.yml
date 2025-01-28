@@ -47,7 +47,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-          ruby-version: 2.5
+          ruby-version: 2.6
         if: ${{steps.release.outputs.release_created}}
       - run: bundle install
         if: ${{steps.release.outputs.release_created}}
