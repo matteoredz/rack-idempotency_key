@@ -28,4 +28,35 @@ RSpec.describe Rack::IdempotencyKey::RedisStore do
       end
     end
   end
+
+  describe "#unset" do
+    before { store.set("key", 1) }
+
+    context "when successful" do
+      it "removes the key/value pair from the store" do
+        store.unset("key")
+        expect(store.get("key")).to be_nil
+      end
+    end
+
+    context "when the underlying redis store fails" do
+      before { allow(redis_mock).to receive(:del).and_raise(Redis::BaseError) }
+
+      it "raises a store error" do
+        expect { store.unset("key") }.to raise_error(Rack::IdempotencyKey::StoreError)
+      end
+    end
+
+    context "when the key doesn't exist" do
+      it "doesn't raise an error" do
+        expect { store.unset("non_existent_key") }.not_to raise_error
+      end
+    end
+
+    context "with invalid input" do
+      it "handles nil keys gracefully" do
+        expect { store.unset(nil) }.not_to raise_error
+      end
+    end
+  end
 end

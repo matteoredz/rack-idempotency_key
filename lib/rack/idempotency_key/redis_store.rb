@@ -66,7 +66,8 @@ module Rack
         end
 
         def namespaced_key(key)
-          "#{KEY_NAMESPACE}:#{key.split.join}"
+          sanitized_key = key&.split&.join
+          "#{KEY_NAMESPACE}:#{sanitized_key}"
         end
     end
   end
