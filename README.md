@@ -52,12 +52,7 @@ module MyApp
 
     config.middleware.use(
       Rack::IdempotencyKey,
-      store: Rack::IdempotencyKey::MemoryStore.new,
-      routes: [
-        { path: "/posts", method: "POST" },
-        { path: "/posts/*", method: "PATCH" },
-        { path: "/posts/*/comments", method: "POST" }
-      ]
+      store: Rack::IdempotencyKey::MemoryStore.new
     )
   end
 end
@@ -117,22 +112,6 @@ The Array returned must conform to the [Rack Specification](https://github.com/r
   []   # Response body
 ]
 ```
-
-## Idempotent Routes
-
-To declare the routes where you want to enable idempotency, you only need to pass a `route` keyword parameter when the Middleware gets mounted.
-
-Each route entry must be compliant with what follows:
-
-```ruby
-routes: [
-  { path: "/posts", method: "POST" },
-  { path: "/posts/*", method: "PATCH" },
-  { path: "/posts/*/comments", method: "POST" }
-]
-```
-
-The `*` char is a placeholder representing a named parameter that will get converted to an any-chars regex.
 
 ## Development
 

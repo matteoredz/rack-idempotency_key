@@ -6,11 +6,10 @@ require "rack/test"
 RSpec.describe Rack::IdempotencyKey do
   include Rack::Test::Methods
 
-  let(:app) { described_class.new(next_app, store: store, routes: idempotent_routes) }
+  let(:app) { described_class.new(next_app, store: store) }
   let(:app_with_default_store) { described_class.new(next_app) }
   let(:next_app) { ->(_env = {}) { [200, { "Content-Type" => "text/plain" }, ["OK"]] } }
   let(:store) { described_class::MemoryStore.new }
-  let(:idempotent_routes) { [{ path: "/", method: "POST" }] }
 
   it "has a VERSION" do
     expect(Rack::IdempotencyKey::VERSION).to be_a(String)
@@ -18,10 +17,6 @@ RSpec.describe Rack::IdempotencyKey do
 
   it "has MemoryStore as default store" do
     expect(app_with_default_store.send(:store)).to be_a(Rack::IdempotencyKey::MemoryStore)
-  end
-
-  it "has a default empty routes array" do
-    expect(app_with_default_store.send(:routes)).to be_empty
   end
 
   context "without Idempotency-Key header" do

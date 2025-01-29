@@ -6,13 +6,12 @@ require "rack/test"
 RSpec.describe Rack::IdempotencyKey::Request do
   include Rack::Test::Methods
 
-  subject(:request) { described_class.new(rack_request, routes, store) }
+  subject(:request) { described_class.new(rack_request, store) }
 
   let(:rack_request)    { Rack::Request.new(env) }
   let(:env)             { Rack::MockRequest.env_for(env_uri, env_opts) }
   let(:env_uri)         { "/" }
   let(:env_opts)        { {} }
-  let(:routes)          { [] }
   let(:idempotency_key) { "123456789" }
   let(:store)           { Rack::IdempotencyKey::MemoryStore.new }
 
@@ -21,39 +20,22 @@ RSpec.describe Rack::IdempotencyKey::Request do
   end
 
   describe "#allowed?" do
-    context "with idempotency key over an allowed method and a matching route" do
+    context "with idempotency key over an allowed method" do
       include_context "with idempotency key in place"
 
       let(:env_opts) { { method: "POST" } }
-      let(:env_uri)  { "/posts" }
-      let(:routes)   { [{ path: "/posts", method: "POST" }] }
 
       it { is_expected.to be_allowed }
     end
 
     context "without the idempotency key" do
       let(:env_opts) { { method: "POST" } }
-      let(:env_uri)  { "/posts" }
-      let(:routes)   { [{ path: "/posts", method: "POST" }] }
 
       it { is_expected.not_to be_allowed }
     end
 
     context "with a not allowed request method" do
       include_context "with idempotency key in place"
-
-      let(:env_uri) { "/posts" }
-      let(:routes)  { [{ path: "/posts", method: "GET" }] }
-
-      it { is_expected.not_to be_allowed }
-    end
-
-    context "without a matching route" do
-      include_context "with idempotency key in place"
-
-      let(:env_opts) { { method: "POST" } }
-      let(:env_uri)  { "/posts/1/authors" }
-      let(:routes)   { [{ path: "/posts/*", method: "POST" }] }
 
       it { is_expected.not_to be_allowed }
     end
@@ -74,36 +56,6 @@ RSpec.describe Rack::IdempotencyKey::Request do
 
         it { is_expected.not_to be_allowed_method }
       end
-    end
-  end
-
-  describe "#any_matching_route?" do
-    context "without any declared route" do
-      it { is_expected.not_to be_any_matching_route }
-    end
-
-    context "when the route ends with a placeholder" do
-      let(:env_opts) { { method: "PATCH" } }
-      let(:env_uri)  { "/posts/1" }
-      let(:routes)   { [{ path: "/posts/*", method: "PATCH" }] }
-
-      it { is_expected.to be_any_matching_route }
-    end
-
-    context "when the route ends with a defined character" do
-      let(:env_opts) { { method: "POST" } }
-      let(:env_uri)  { "/posts" }
-      let(:routes)   { [{ path: "/posts", method: "POST" }] }
-
-      it { is_expected.to be_any_matching_route }
-    end
-
-    context "with declared but no matching routes" do
-      let(:env_opts) { { method: "POST" } }
-      let(:env_uri)  { "/authors" }
-      let(:routes)   { [{ path: "/posts/*/authors", method: "POST" }] }
-
-      it { is_expected.not_to be_any_matching_route }
     end
   end
 

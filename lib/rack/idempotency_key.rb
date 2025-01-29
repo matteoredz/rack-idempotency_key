@@ -12,14 +12,13 @@ require "rack/idempotency_key/request"
 
 module Rack
   class IdempotencyKey
-    def initialize(app, routes: [], store: MemoryStore.new)
-      @app    = app
-      @routes = routes
-      @store  = store
+    def initialize(app, store: MemoryStore.new)
+      @app   = app
+      @store = store
     end
 
     def call(env)
-      request = Request.new(Rack::Request.new(env), routes, store)
+      request = Request.new(Rack::Request.new(env), store)
       return app.call(env) unless request.allowed?
 
       handle_request!(request, env)
@@ -31,7 +30,7 @@ module Rack
 
     private
 
-      attr_reader :app, :store, :routes
+      attr_reader :app, :store
 
       def handle_request!(request, env)
         request.with_lock! do
