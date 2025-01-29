@@ -5,7 +5,7 @@ module Rack
     class MemoryStore
       DEFAULT_EXPIRATION = 300 # 5 minutes in seconds
 
-      def initialize(_store, expires_in: DEFAULT_EXPIRATION)
+      def initialize(expires_in: DEFAULT_EXPIRATION)
         @store      = {}
         @expires_in = expires_in
         @mutex      = Mutex.new
