@@ -17,16 +17,6 @@ module Rack
         idempotency_key? && allowed_method?
       end
 
-      # TODO
-      #
-      # 1. Lock immediately the request using the store!
-      #   1.1. Raise ConflictError if the execution should already be locked
-      # 2. Yield the block
-      # 3. Release the lock w/o affecting other locks
-      def with_lock!
-        yield
-      end
-
       def cached_response!
         store.get(cache_key).tap do |response|
           response[1]["Idempotent-Replayed"] = true unless response.nil?

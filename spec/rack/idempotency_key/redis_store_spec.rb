@@ -16,7 +16,7 @@ RSpec.describe Rack::IdempotencyKey::RedisStore do
       before { allow(redis_mock).to receive(:get).and_raise(Redis::BaseError) }
 
       it "raises a store error" do
-        expect { store.get("key") }.to raise_error(Rack::IdempotencyKey::Store::Error)
+        expect { store.get("key") }.to raise_error(Rack::IdempotencyKey::StoreError)
       end
     end
 
@@ -24,7 +24,7 @@ RSpec.describe Rack::IdempotencyKey::RedisStore do
       before { allow(redis_mock).to receive(:set).and_raise(Redis::BaseError) }
 
       it "raises a store error" do
-        expect { store.set("key", "val") }.to raise_error(Rack::IdempotencyKey::Store::Error)
+        expect { store.set("key", "val") }.to raise_error(Rack::IdempotencyKey::StoreError)
       end
     end
   end

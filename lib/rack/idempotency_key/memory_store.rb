@@ -27,6 +27,8 @@ module Rack
 
       def set(key, value)
         mutex.synchronize do
+          raise Rack::IdempotencyKey::ConflictError if store.key?(key)
+
           store[key] ||= { value: value, added_at: Time.now.utc }
           store[key][:value]
         end

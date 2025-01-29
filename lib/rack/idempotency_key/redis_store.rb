@@ -17,14 +17,18 @@ module Rack
         value = with_redis { |redis| redis.get(namespaced_key(key)) }
         JSON.parse(value) unless value.nil?
       rescue Redis::BaseError => e
-        raise Rack::IdempotencyKey::Store::Error, "#{self.class}: #{e.message}"
+        raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
       end
 
       def set(key, value)
-        with_redis { |redis| redis.set(namespaced_key(key), value, nx: true, ex: expires_in) }
+        with_redis do |redis|
+          result = redis.set(namespaced_key(key), value, nx: true, ex: expires_in)
+          raise Rack::IdempotencyKey::ConflictError unless result
+        end
+
         get(key)
       rescue Redis::BaseError => e
-        raise Rack::IdempotencyKey::Store::Error, "#{self.class}: #{e.message}"
+        raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
       end
 
       private
