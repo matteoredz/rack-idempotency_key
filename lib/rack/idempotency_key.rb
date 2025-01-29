@@ -33,10 +33,12 @@ module Rack
       attr_reader :app, :store
 
       def handle_request!(request, env)
-        cached_response = request.cached_response!
-        return cached_response unless cached_response.nil?
+        request.locked! do
+          cached_response = request.cached_response!
+          return cached_response unless cached_response.nil?
 
-        request.locked! { app.call(env).tap { |response| request.cache!(response) } }
+          app.call(env).tap { |response| request.cache!(response) }
+        end
       end
   end
 end
