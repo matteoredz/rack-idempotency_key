@@ -5,7 +5,7 @@ require "rack/idempotency_key/store"
 module Rack
   class IdempotencyKey
     class MemoryStore < Store
-      def initialize(store = {}, expires_in: 86_400)
+      def initialize(store = {}, expires_in: Store::DEFAULT_EXPIRATION)
         super(store, expires_in: expires_in)
         @mutex = Mutex.new
       end
