@@ -29,9 +29,9 @@ module Rack
         mutex.synchronize do
           store[key] ||= { value: value, expires_at: Time.now.utc + ttl }
           raise Rack::IdempotencyKey::ConflictError if store[key][:value] != value
-
-          store[key][:value]
         end
+
+        get(key)
       end
 
       def unset(key)
