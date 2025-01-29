@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
-require "rack/idempotency_key/store"
-
 module Rack
   class IdempotencyKey
-    class MemoryStore < Store
-      def initialize(store = {}, expires_in: Store::DEFAULT_EXPIRATION)
-        super(store, expires_in: expires_in)
-        @mutex = Mutex.new
+    class MemoryStore
+      DEFAULT_EXPIRATION = 300 # 5 minutes in seconds
+
+      def initialize(_store, expires_in: DEFAULT_EXPIRATION)
+        @store      = {}
+        @expires_in = expires_in
+        @mutex      = Mutex.new
       end
 
       def get(key)
@@ -33,7 +34,7 @@ module Rack
 
       private
 
-        attr_reader :mutex
+        attr_reader :store, :expires_in, :mutex
 
         def expired?(added_at)
           Time.now.utc - added_at > expires_in

@@ -2,12 +2,16 @@
 
 require "redis"
 
-require "rack/idempotency_key/store"
-
 module Rack
   class IdempotencyKey
-    class RedisStore < Store
-      KEY_NAMESPACE = "idempotency_key"
+    class RedisStore
+      DEFAULT_EXPIRATION = 300 # 5 minutes in seconds
+      KEY_NAMESPACE      = "idempotency_key"
+
+      def initialize(store, expires_in: DEFAULT_EXPIRATION)
+        @store      = store
+        @expires_in = expires_in
+      end
 
       def get(key)
         value = with_redis { |redis| redis.get(namespaced_key(key)) }
@@ -24,6 +28,8 @@ module Rack
       end
 
       private
+
+        attr_reader :store, :expires_in
 
         # Executes the given block with a Redis connection, supporting both direct
         # Redis instances and connection pools (https://github.com/mperham/connection_pool).
