@@ -69,8 +69,8 @@ This one is the default store. It caches the response in memory.
 ```ruby
 Rack::IdempotencyKey::MemoryStore.new
 
-# Explicitly set the key's expiration, in seconds. The default is 86_400 (24 hours)
-Rack::IdempotencyKey::MemoryStore.new(expires_in: 43_200)
+# Explicitly set the key's expiration, in seconds. The default is 300 (5 minutes)
+Rack::IdempotencyKey::MemoryStore.new(expires_in: 300)
 ```
 
 ### RedisStore
@@ -80,11 +80,18 @@ This one is the suggested store to use in production. It relies on the [redis ge
 ```ruby
 Rack::IdempotencyKey::RedisStore.new(Redis.current)
 
-# Explicitly set the key's expiration, in seconds. The default is 86_400 (24 hours)
-Rack::IdempotencyKey::RedisStore.new(Redis.current, expires_in: 43_200)
+# Explicitly set the key's expiration, in seconds. The default is 300 (5 minutes)
+Rack::IdempotencyKey::RedisStore.new(Redis.current, expires_in: 300)
 ```
 
 Every key written to Redis will get prefixed with `idempotency_key` to avoid conflicts on shared instances.
+
+If you're using a [Connection Pool](https://github.com/mperham/connection_pool), you can pass it instead of the single instance:
+
+```ruby
+redis_pool = ConnectionPool.new(size: 5, timeout: 5) { Redis.new }
+Rack::IdempotencyKey::RedisStore.new(redis_pool)
+```
 
 ### Custom Store
 
