@@ -32,7 +32,7 @@ module Rack
       end
 
       def unset(key)
-        with_redis { |redis| redis.del(key) }
+        with_redis { |redis| redis.del(namespaced_key(key)) }
       rescue Redis::BaseError => e
         raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
       end
