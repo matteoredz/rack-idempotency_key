@@ -16,7 +16,7 @@ module Rack
           value = store[key]
           return if value.nil?
 
-          if expired?(value[:added_at])
+          if expired?(value[:expires_at])
             store.delete(key)
             return
           end
@@ -25,21 +25,25 @@ module Rack
         end
       end
 
-      def set(key, value)
+      def set(key, value, ttl: expires_in)
         mutex.synchronize do
           raise Rack::IdempotencyKey::ConflictError if store.key?(key)
 
-          store[key] ||= { value: value, added_at: Time.now.utc }
+          store[key] ||= { value: value, expires_at: Time.now.utc + ttl }
           store[key][:value]
         end
+      end
+
+      def unset(key)
+        mutex.synchronize { store.delete(key) }
       end
 
       private
 
         attr_reader :store, :expires_in, :mutex
 
-        def expired?(added_at)
-          Time.now.utc - added_at > expires_in
+        def expired?(expires_at)
+          Time.now.utc > expires_at
         end
     end
   end

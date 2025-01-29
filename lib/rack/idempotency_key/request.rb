@@ -3,6 +3,8 @@
 module Rack
   class IdempotencyKey
     class Request
+      DEFAULT_LOCK_TTL = 60 # seconds
+
       # @param request [Rack::Request]
       # @param store   [Store]
       def initialize(request, store)
@@ -20,6 +22,16 @@ module Rack
       def cached_response!
         store.get(cache_key).tap do |response|
           response[1]["Idempotent-Replayed"] = true unless response.nil?
+        end
+      end
+
+      def locked!
+        store.set(lock_key, 1, ttl: DEFAULT_LOCK_TTL)
+
+        begin
+          yield
+        ensure
+          store.unset(lock_key)
         end
       end
 
@@ -56,6 +68,10 @@ module Rack
       private
 
         attr_reader :request, :store
+
+        def lock_key
+          "#{idempotency_key}_lock"
+        end
     end
   end
 end

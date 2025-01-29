@@ -20,13 +20,19 @@ module Rack
         raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
       end
 
-      def set(key, value)
+      def set(key, value, ttl: expires_in)
         with_redis do |redis|
-          result = redis.set(namespaced_key(key), value, nx: true, ex: expires_in)
+          result = redis.set(namespaced_key(key), value, nx: true, ex: ttl)
           raise Rack::IdempotencyKey::ConflictError unless result
         end
 
         get(key)
+      rescue Redis::BaseError => e
+        raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
+      end
+
+      def unset(key)
+        with_redis { |redis| redis.del(key) }
       rescue Redis::BaseError => e
         raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
       end

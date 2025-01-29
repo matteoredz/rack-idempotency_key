@@ -36,7 +36,7 @@ module Rack
         cached_response = request.cached_response!
         return cached_response unless cached_response.nil?
 
-        app.call(env).tap { |response| request.cache!(response) }
+        request.locked! { app.call(env).tap { |response| request.cache!(response) } }
       end
   end
 end
