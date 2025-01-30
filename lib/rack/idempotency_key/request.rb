@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "rack/idempotency_key/request_hash"
+
 module Rack
   class IdempotencyKey
     class Request
@@ -8,8 +10,9 @@ module Rack
       # @param request [Rack::Request]
       # @param store   [Store]
       def initialize(request, store)
-        @request = request
-        @store   = store
+        @request    = request
+        @request_id = Rack::IdempotencyKey::RequestHash.new(request).id
+        @store      = store
       end
 
       # Checks if the `Idempotency-Key` header is present, if the HTTP request method is allowed.
@@ -61,16 +64,16 @@ module Rack
         request.get_header "HTTP_IDEMPOTENCY_KEY"
       end
 
-      def cache_key
-        idempotency_key
-      end
-
       private
 
-        attr_reader :request, :store
+        attr_reader :request, :request_id, :store
+
+        def cache_key
+          "idempotency_key:#{request_id}"
+        end
 
         def lock_key
-          "#{idempotency_key}_lock"
+          "#{cache_key}_lock"
         end
     end
   end

@@ -6,7 +6,6 @@ module Rack
   class IdempotencyKey
     class RedisStore
       DEFAULT_EXPIRATION = 300 # 5 minutes in seconds
-      KEY_NAMESPACE      = "idempotency_key"
 
       def initialize(store, expires_in: DEFAULT_EXPIRATION)
         @store      = store
@@ -14,7 +13,7 @@ module Rack
       end
 
       def get(key)
-        value = with_redis { |redis| redis.get(namespaced_key(key)) }
+        value = with_redis { |redis| redis.get(key) }
         JSON.parse(value) unless value.nil?
       rescue Redis::BaseError => e
         raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
@@ -22,7 +21,7 @@ module Rack
 
       def set(key, value, ttl: expires_in)
         with_redis do |redis|
-          result = redis.set(namespaced_key(key), value, nx: true, ex: ttl)
+          result = redis.set(key, value, nx: true, ex: ttl)
           raise Rack::IdempotencyKey::ConflictError unless result
         end
 
@@ -32,7 +31,7 @@ module Rack
       end
 
       def unset(key)
-        with_redis { |redis| redis.del(namespaced_key(key)) }
+        with_redis { |redis| redis.del(key) }
       rescue Redis::BaseError => e
         raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
       end
@@ -63,11 +62,6 @@ module Rack
           else
             yield store
           end
-        end
-
-        def namespaced_key(key)
-          sanitized_key = key&.split&.join
-          "#{KEY_NAMESPACE}:#{sanitized_key}"
         end
     end
   end
