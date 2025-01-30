@@ -17,14 +17,24 @@ module Rack
         value = with_redis { |redis| redis.get(namespaced_key(key)) }
         JSON.parse(value) unless value.nil?
       rescue Redis::BaseError => e
-        raise Rack::IdempotencyKey::Store::Error, "#{self.class}: #{e.message}"
+        raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
       end
 
-      def set(key, value)
-        with_redis { |redis| redis.set(namespaced_key(key), value, nx: true, ex: expires_in) }
+      def set(key, value, ttl: expires_in)
+        with_redis do |redis|
+          result = redis.set(namespaced_key(key), value, nx: true, ex: ttl)
+          raise Rack::IdempotencyKey::ConflictError unless result
+        end
+
         get(key)
       rescue Redis::BaseError => e
-        raise Rack::IdempotencyKey::Store::Error, "#{self.class}: #{e.message}"
+        raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
+      end
+
+      def unset(key)
+        with_redis { |redis| redis.del(namespaced_key(key)) }
+      rescue Redis::BaseError => e
+        raise Rack::IdempotencyKey::StoreError, "#{self.class}: #{e.message}"
       end
 
       private
@@ -56,7 +66,8 @@ module Rack
         end
 
         def namespaced_key(key)
-          "#{KEY_NAMESPACE}:#{key.split.join}"
+          sanitized_key = key&.split&.join
+          "#{KEY_NAMESPACE}:#{sanitized_key}"
         end
     end
   end

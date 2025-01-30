@@ -40,12 +40,8 @@ RSpec.shared_examples "describe store get and set methods" do
 
       before { store.set(key, value) }
 
-      it "does not override the existing value" do
-        expect(store.set(key, new_value)).to eq(value)
-      end
-
-      it "returns the already set value" do
-        store.set(key, new_value)
+      it "raises ConflictError and preserves the existing value" do # rubocop:disable RSpec/MultipleExpectations
+        expect { store.set(key, new_value) }.to raise_error(Rack::IdempotencyKey::ConflictError)
         expect(store.get(key)).to eq(value)
       end
     end

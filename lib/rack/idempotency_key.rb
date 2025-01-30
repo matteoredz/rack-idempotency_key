@@ -22,9 +22,9 @@ module Rack
       return app.call(env) unless request.allowed?
 
       handle_request!(request, env)
-    rescue Request::ConflictError
-      [409, { "Content-Type" => "text/plain" }, ["Conflict"]]
-    rescue Store::Error => e
+    rescue ConflictError => e
+      [409, { "Content-Type" => "text/plain" }, [e.message]]
+    rescue StoreError => e
       [503, { "Content-Type" => "text/plain" }, [e.message]]
     end
 
@@ -33,7 +33,7 @@ module Rack
       attr_reader :app, :store
 
       def handle_request!(request, env)
-        request.with_lock! do
+        request.locked! do
           cached_response = request.cached_response!
           return cached_response unless cached_response.nil?
 

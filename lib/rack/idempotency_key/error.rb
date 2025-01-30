@@ -5,15 +5,16 @@ module Rack
     # Base error class for all IdempotencyKey errors
     Error = Class.new(StandardError)
 
-    class Request
-      # Error raised for general idempotent request failures
-      Error = Class.new(Error)
-      # Error raised when a conflicting idempotent request is detected
-      ConflictError = Class.new(Error)
+    # Error raised when a conflicting idempotent request is detected
+    class ConflictError < Error
+      DEFAULT_MESSAGE = "This request is already being processed. Please retry later."
+
+      def initialize(msg = DEFAULT_MESSAGE)
+        super(msg)
+      end
     end
 
-    class Store
-      Error = Class.new(Error)
-    end
+    # Error raised for general store failures
+    StoreError = Class.new(Error)
   end
 end

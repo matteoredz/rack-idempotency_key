@@ -91,5 +91,31 @@ RSpec.describe Rack::IdempotencyKey do
         expect(store).not_to have_received(:set).with("123456789", next_app)
       end
     end
+
+    context "when another concurrent request was issued" do
+      before do
+        allow(app).to(
+          receive(:handle_request!).and_raise(Rack::IdempotencyKey::ConflictError)
+        )
+      end
+
+      it "responds with a 409" do
+        post "/", {}, { "HTTP_IDEMPOTENCY_KEY" => "123456789" }
+        expect(last_response.status).to eq(409)
+      end
+    end
+
+    context "when the underlying store fails" do
+      before do
+        allow(app).to(
+          receive(:handle_request!).and_raise(Rack::IdempotencyKey::StoreError)
+        )
+      end
+
+      it "responds with a 503" do
+        post "/", {}, { "HTTP_IDEMPOTENCY_KEY" => "123456789" }
+        expect(last_response.status).to eq(503)
+      end
+    end
   end
 end
