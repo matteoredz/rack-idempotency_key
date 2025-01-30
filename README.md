@@ -1,5 +1,7 @@
 # `Rack::IdempotencyKey`
 
+[![Gem Version](https://badge.fury.io/rb/rack-idempotency_key.svg)](https://badge.fury.io/rb/rack-idempotency_key) [![Maintainability](https://api.codeclimate.com/v1/badges/26b3ad3d3af3b2377037/maintainability)](https://codeclimate.com/github/matteoredz/rack-idempotency_key/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/26b3ad3d3af3b2377037/test_coverage)](https://codeclimate.com/github/matteoredz/rack-idempotency_key/test_coverage)
+
 > [!WARNING]
 > This gem is in its pre-1.0 release phase, which means it may contain bugs and the API is subject to change.
 > Proceed with caution and use it at your own risk.
