@@ -17,7 +17,7 @@ To be idempotent, only the state of the server is considered. The response retur
 ## Under the hood
 
 - A valid idempotent request is cached on the server, using the `store` of choice
-- A cached response expires out of the system after `24 hours`
+- A cached response expires out of the system after `5 minutes` by default
 - A response with a `400` (BadRequest) HTTP status code isn't cached
 
 ## Installation
