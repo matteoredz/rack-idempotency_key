@@ -83,8 +83,6 @@ Rack::IdempotencyKey::RedisStore.new(Redis.current)
 Rack::IdempotencyKey::RedisStore.new(Redis.current, expires_in: 300)
 ```
 
-Every key written to Redis will get prefixed with `idempotency_key` to avoid conflicts on shared instances.
-
 If you're using a [Connection Pool](https://github.com/mperham/connection_pool), you can pass it instead of the single instance:
 
 ```ruby
