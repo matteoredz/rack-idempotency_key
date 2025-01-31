@@ -45,6 +45,11 @@ RSpec/MultipleMemoizedHelpers:
 Style/Documentation:
   Enabled: false
 
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  Exclude:
+    - 'gemfiles/*'
+
 Style/StringLiterals:
   Enabled: true
   EnforcedStyle: double_quotes
