@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "mock_redis"
-require "securerandom"
 require "spec_helper"
 
 RSpec.describe Rack::IdempotencyKey::RedisStore do

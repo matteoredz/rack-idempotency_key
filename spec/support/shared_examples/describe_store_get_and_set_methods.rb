@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 RSpec.shared_examples "describe store get and set methods" do
   let(:key)   { SecureRandom.uuid }
   let(:value) { [204, {}, []] }
