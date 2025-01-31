@@ -12,6 +12,7 @@
 /doc/
 /dump.rdb
 /Gemfile.lock
+/gemfiles/*.lock
 /pkg/
 /rack-idempotency_key-*.gem
 /spec/reports/
