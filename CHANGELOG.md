@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/matteoredz/rack-idempotency_key/compare/v0.2.1...v0.2.2) (2025-01-31)
+
+
+### Miscellaneous Chores
+
+* explicitly add rack &gt;= 2 runtime dependency ([#22](https://github.com/matteoredz/rack-idempotency_key/issues/22)) ([366bfa8](https://github.com/matteoredz/rack-idempotency_key/commit/366bfa853afe75ce6b0811c8b01246fd965dc5b2))
+
 ## [0.2.1](https://github.com/matteoredz/rack-idempotency_key/compare/v0.2.0...v0.2.1) (2025-01-31)
 
 
