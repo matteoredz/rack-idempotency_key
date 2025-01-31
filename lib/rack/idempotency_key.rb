@@ -5,7 +5,13 @@ require "rack/idempotency_key/error"
 
 # Stores
 require "rack/idempotency_key/memory_store"
-require "rack/idempotency_key/redis_store"
+
+begin
+  require "rack/idempotency_key/redis_store"
+rescue LoadError => e
+  warn "RedisStore was not required: #{e.message}"
+  warn "* Add 'redis' to your bundle to use this store."
+end
 
 # Collaborators
 require "rack/idempotency_key/request"
