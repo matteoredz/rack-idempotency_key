@@ -1,7 +1,6 @@
 ---
 require:
   - rubocop-performance
-  - rubocop-rake
   - rubocop-rspec
 
 AllCops:
@@ -44,6 +43,11 @@ RSpec/MultipleMemoizedHelpers:
 
 Style/Documentation:
   Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  Exclude:
+    - 'gemfiles/*'
 
 Style/StringLiterals:
   Enabled: true
