@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.1](https://github.com/matteoredz/rack-idempotency_key/compare/v0.2.0...v0.2.1) (2025-01-31)
+
+
+### Continuous Integration
+
+* add rack 2 and 3 via appraisal gem ([#21](https://github.com/matteoredz/rack-idempotency_key/issues/21)) ([b603427](https://github.com/matteoredz/rack-idempotency_key/commit/b603427915422dabf658dcaad5a2af5199f64d44))
+
+
+### Code Refactoring
+
+* remove direct dependency on redis-rb ([#19](https://github.com/matteoredz/rack-idempotency_key/issues/19)) ([08d7a48](https://github.com/matteoredz/rack-idempotency_key/commit/08d7a488876c2029c8f8b80ce54ff1ad0086532e))
+
 ## [0.2.0](https://github.com/matteoredz/rack-idempotency_key/compare/v0.1.1...v0.2.0) (2025-01-30)
 
 
